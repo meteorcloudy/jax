@@ -1,0 +1,39 @@
+bazel_dep(name = "jax")
+local_path_override(
+    module_name = "jax",
+    path = "../",
+)
+
+# TODO: use a released version when available
+bazel_dep(name = "rules_ml_toolchain")
+archive_override(
+    module_name = "rules_ml_toolchain",
+    integrity = "sha256-s6lSdgWx8xRrtDEin6H4ui5EFI7S653N6rgAy+SnA/Y=",
+    strip_prefix = "rules_ml_toolchain-469be4eea388140207e2a31b8f4d4d612532fcde",
+    urls = ["https://github.com/google-ml-infra/rules_ml_toolchain/archive/469be4eea388140207e2a31b8f4d4d612532fcde.tar.gz"],
+)
+
+# TODO: use a released version when available
+bazel_dep(name = "xla")
+archive_override(
+    module_name = "xla",
+    integrity = "sha256-FmmcrZgng83LaOHnuYpTmouqcQdCh5jbt0tnUQQdj9g=",
+    strip_prefix = "xla-ed953c01bb51f95a36abd907d1a64295feef16fc",
+    urls = ["https://github.com/openxla/xla/archive/ed953c01bb51f95a36abd907d1a64295feef16fc.tar.gz"],
+)
+
+# Patch grpc for missing feature
+single_version_override(
+    module_name = "grpc",
+    patch_strip = 1,
+    patches = ["//third_party/grpc:grpc.patch"],  # upstreaming in cl/822016400
+)
+
+# Unify the pypi installation for JAX and XLA.
+bazel_dep(name = "rules_python", version = "1.6.1")
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+use_repo(pip, "pypi_mods", pypi = "jax_pypi")
+override_repo(
+    pip,
+    xla_pypi = "pypi",
+)

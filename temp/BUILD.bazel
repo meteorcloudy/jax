@@ -1,0 +1,1 @@
+py_binary(name = "check_version", srcs = ["check_version.py"], main = "check_version.py")
